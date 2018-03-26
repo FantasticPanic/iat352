@@ -1,6 +1,6 @@
 <?php
-	require "config.php";
-
+	require_once("config.php");
+	session_start();
 
 ?>
 
@@ -29,42 +29,43 @@
 		
 		<label>Select Your Favorite Team</label>
 		<select class = "faveTeam" name="faveTeam">
-			<option value = "ATL">Atlanta Hawkes</option>
-			<option value = "BOS">Boston Celtics</option>
-			<option value = "BKN">Brooklyn Nets</option>
-			<option value = "CHA">Charlotte Hornets</option>
-			<option value = "CHI">Chicago Bulls</option>
-			<option value = "CLE">Cleveland Cavaliers</option>
-			<option value = "DAL">Dallas Mavericks</option>
-			<option value = "DEN">Denver Nuggets</option>
-			<option value = "DET">Detroit Pistons</option>
-			<option value = "GSW">Golden State Warriors</option>
-			<option value = "HOU">Houston Rockets</option>
-			<option value = "IND">Indiana Pacers</option>
-			<option value = "LAC">LA Clippers</option>
-			<option value = "LAL">Los Angeles Lakers</option>
-			<option value = "MEM">Memphis Grizzlies</option>
-			<option value = "MIA">Miami Heat</option>
-			<option value = "MIL">Milwaukee Bucks</option>
-			<option value = "MIN">Minnesota Timberwolves</option>
-			<option value = "NOP">New Orleans Pelicans</option>
-			<option value = "NYK">New York Knicks</option>
-			<option value = "OKC">Oklahoma City Thunder</option>
-			<option value = "ORL">Orlando Magic</option>
-			<option value = "PHI">Philadelphia 76ers</option>
-			<option value = "PHX">Pheonix Suns</option>
-			<option value = "POR">Portland Trail Blazers</option>
-			<option value = "SAC">Sacremento Kings</option>
-			<option value = "SAS">San Antonio Spurs</option>
-			<option value = "TOR">Toronto Raptors</option>
-			<option value = "UTA">Utah Jazz</option>
-			<option value = "WAS">Washington Wizards</option>
+			<option value = "Atlanta Hawkes">Atlanta Hawkes</option>
+			<option value = "Boston Celtics">Boston Celtics</option>
+			<option value = "Brooklyn Nets">Brooklyn Nets</option>
+			<option value = "Charlotte Hornets">Charlotte Hornets</option>
+			<option value = "Chicago Bulls">Chicago Bulls</option>
+			<option value = "Cleveland Cavaliers">Cleveland Cavaliers</option>
+			<option value = "Dallas Mavericks">Dallas Mavericks</option>
+			<option value = "Denver Nuggets">Denver Nuggets</option>
+			<option value = "Detroit Pistons">Detroit Pistons</option>
+			<option value = "Golden State Warriors">Golden State Warriors</option>
+			<option value = "Houston Rockets">Houston Rockets</option>
+			<option value = "Indiana Pacers">Indiana Pacers</option>
+			<option value = "LA Clippers">LA Clippers</option>
+			<option value = "Los Angeles Lakers">Los Angeles Lakers</option>
+			<option value = "Memphis Grizzlies">Memphis Grizzlies</option>
+			<option value = "Miami Heat">Miami Heat</option>
+			<option value = "Milwaukee Bucks">Milwaukee Bucks</option>
+			<option value = "Minnesota Timberwolves">Minnesota Timberwolves</option>
+			<option value = "New Orleans Pelicans">New Orleans Pelicans</option>
+			<option value = "New York Knicks">New York Knicks</option>
+			<option value = "Oklahoma City Thunder">Oklahoma City Thunder</option>
+			<option value = "Orlando Magic">Orlando Magic</option>
+			<option value = "Philadelphia 76ers">Philadelphia 76ers</option>
+			<option value = "Pheonix Suns">Pheonix Suns</option>
+			<option value = "Portland Trail Blazers">Portland Trail Blazers</option>
+			<option value = "Sacremento Kings">Sacremento Kings</option>
+			<option value = "San Antonio Spurs">San Antonio Spurs</option>
+			<option value = "Toronto Raptors">Toronto Raptors</option>
+			<option value = "Utah Jazz">Utah Jazz</option>
+			<option value = "Washington Wizards">Washington Wizards</option>
 		</select><br>
 		
 		<label>Password: </label>
 		<input name= "password" type = "password" class = "inputvalues" placeholder = "Type your password" required /><br>
 		<label>Confirm Password: </label>
 		<input name= "cpassword"type = "password" class = "inputvalues" placeholder = "Re-type your password" required/><br><br>
+		<input type="hidden" id="dateCreated" name="dateCreated"/>
 
 		
 
@@ -77,6 +78,8 @@
 //will check whether or not the create account button is pressed
 if(isset($_POST['createacct_btn'])){
 	//echo '<script type = "text/javascript"> alert("TEST IF THIS WORKS") </script>';
+	
+
 	 $firstName = $_POST['firstName'];
 	 $lastName	= $_POST['lastName'];
 	 $username = $_POST['username'];
@@ -85,31 +88,42 @@ if(isset($_POST['createacct_btn'])){
 	 $cpassword = $_POST['cpassword'];
 	 $faveTeam = $_POST['faveTeam'];
 
+	 $encrypted_password = md5($password);
+	 
+	 
+
 	 //check the first password and confirmed password, see if they match
 	 // make a query on the database
 	if($password == $cpassword){
-			$query= "SELECT * FROM users WHERE username='$username'";
+			$query= "SELECT * FROM members WHERE username='$username'";
 
 			//pass in connection variable from config.php and query
 			$query_run = mysqli_query($db,$query);
 
 			//checks number of rows when the query was executed
+			
+			if($query_run)
+			{
+
 			if(mysqli_num_rows($query_run)>0)
 			{
 				//if this username already exists
 				echo '<script type = "text/javascript"> alert("This username already exists")</script>';
+
 			}
 			else
 			{
 				//inserts values into MySQL database
-				$query = "INSERT INTO users VALUES (NULL, '$username', '$firstName','$lastName','$email', '$password', '$faveTeam')";
+				$query = "INSERT INTO members VALUES (NULL, '$firstName','$lastName','$username', '$email','$faveTeam', CURRENT_DATE, '$encrypted_password')";
 				$query_run = mysqli_query($db, $query);
 
 				//if it runs sucessfully
 				if($query_run)
 				{ 
-					echo '<script type = "text/javascript"> alert("Username registered")</ script>';
-				}
+					echo "<script type = 'text/javascript'> alert('Account registered in database')</ script>";
+					//$_SESSION['username'] = $username;
+					//header('location: homepage.php');
+					}
 				else
 				{ 
 					echo '<script type= "text/javascript"> alert("Oops! There was an error in the database") </script>';
@@ -120,10 +134,13 @@ if(isset($_POST['createacct_btn'])){
 	}
 	else {
 
-		echo '<script type= "text/javascript"> alert("Please check that password and confirm password match") </script>';
-
+		echo '<script type= "text/javascript"> alert("Database Error") </script>';
 	}
+}
+else{
 
+	echo '<script type="text/javascript">alert("Password and Confirm Password do not match")</script>';
+	}
 }
 ?>
 </div>

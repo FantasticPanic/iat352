@@ -34,9 +34,10 @@ if(isset($_POST['login']))
 {
 	$username = $_POST['username'];
 	$password = $_POST['password'];
+	$encrypted_password= md5($password);
 
 	//query the database if the username and password exist
-	$query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+	$query = "SELECT * FROM members WHERE username = '$username' AND password = '$encrypted_password'";
 
 	$query_run = mysqli_query($db, $query);
 	
